@@ -12,7 +12,7 @@ pipeline {
     stages {
         stage('Git Checkout') {
             steps {
-                git branch: 'deploy-to-dev-k8', url: 'https://github.com/jaiswaladi246/3-Tier-DevSecOps-Mega-Project.git'
+                git branch: 'deploy-to-dev-k8', url: 'https://github.com/skypower999/3-Tier-DevSecOps-Mega-Project.git'
             }
         }
         
