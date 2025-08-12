@@ -36,6 +36,21 @@ echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main"
 sudo apt-get update -y
 sudo apt-get install -y trivy
 
+# ----------------------------------------
+# Install kubectl
+# ----------------------------------------
+if ! command -v kubectl >/dev/null 2>&1; then
+  echo "🛠️  Installing kubectl..."
+  KUBECTL_VER="$(curl -sL https://dl.k8s.io/release/stable.txt)"
+  curl -LO "https://dl.k8s.io/release/${KUBECTL_VER}/bin/linux/amd64/kubectl"
+  curl -LO "https://dl.k8s.io/release/${KUBECTL_VER}/bin/linux/amd64/kubectl.sha256"
+  echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check - >/dev/null
+  sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+  rm -f kubectl kubectl.sha256
+else
+  echo "✅ kubectl already installed: $(kubectl version --client --output=yaml | grep gitVersion | awk '{print $2}')"
+fi
+
 # Install Docker
 echo "🐳 Installing Docker..."
 sudo apt-get install -y ca-certificates curl

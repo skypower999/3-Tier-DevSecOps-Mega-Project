@@ -1,4 +1,3 @@
-
 pipeline {
     agent any
     
@@ -60,62 +59,60 @@ pipeline {
             }
         }
         
-        stage('Build-Tag & Push Backend Docker Image') {
+        stage('Build & Tag Backend Docker Image') {
             steps {
                 script {
                     withDockerRegistry(credentialsId: 'docker-cred') {
-                        dir('api') {
-                            sh 'docker build -t akshempower/backend:latest .'
-                            sh 'trivy image --format table -o backend-image-report.html akshempower/backend:latest '
-                            sh 'docker push akshempower/backend:latest'
-                           
+                     dir('api') {
+                          sh 'docker build -t akshempower/backend:latest .'
+                          sh 'trivy image --format table -o backend-image-report.html akshempower/backend:latest'
+                          sh 'docker push akshempower/backend:latest'
+                          
                         }
-                    }
-                }
-            }
-        }  
-            
-        stage('Build-Tag & Push Frontend Docker Image') {
-            steps {
-                script {
-                    withDockerRegistry(credentialsId: 'docker-cred') {
-                        dir('client') {
-                            sh 'docker build -t akshempower/frontend:latest .'
-                            sh 'trivy image --format table -o frontend-image-report.html akshempower/frontend:latest '
-                            sh 'docker push akshempower/frontend:latest'
-                        }
-                    }
-                }
-            }
-             
-        }  
-        
-        stage('K8-deploy') {
-            steps {
-                script {
-                    withKubeConfig(caCertificate: '', clusterName: 'devopsshack-cluster', contextName: '', credentialsId: 'k8-token', namespace: 'dev', restrictKubeConfigAccess: false, serverUrl: 'https://042CDFB283295491DDF7A7A422346F3B.gr7.ap-south-1.eks.amazonaws.com') {
-                            sh 'kubectl apply -f k8s/sc.yaml -n dev'
-                            sh 'kubectl apply -f k8s/mysql.yaml -n dev'
-                            sh 'kubectl apply -f k8s/backend.yaml -n dev'
-                            sh 'kubectl apply -f k8s/frontend.yaml -n dev'
-                            sleep 30
-                        }
+                   }
                 }
             }
         }
         
-        stage('verify-K8-deploy') {
+        stage('Build & Tag Frontend Docker Image') {
             steps {
                 script {
-                    withKubeConfig(caCertificate: '', clusterName: 'devopsshack-cluster', contextName: '', credentialsId: 'k8-token', namespace: 'dev', restrictKubeConfigAccess: false, serverUrl: 'https://042CDFB283295491DDF7A7A422346F3B.gr7.ap-south-1.eks.amazonaws.com') {
-                            sh 'kubectl get pods -n dev'
-                            sh 'kubectl get svc -n dev'
-                            
+                    withDockerRegistry(credentialsId: 'docker-cred') {
+                     dir('client') {
+                          sh 'docker build -t akshempower/frontend:latest .'
+                          sh 'trivy image --format table -o frontend-image-report.html akshempower/frontend:latest'
+                          sh 'docker push akshempower/frontend:latest'
                         }
+                   }
                 }
             }
         }
         
-            
+        stage('k8-deploy') {
+            steps {
+                script {
+                   withKubeConfig(caCertificate: '', clusterName: ' devopsshack-cluster', contextName: '', credentialsId: 'k8-token', namespace: 'dev', restrictKubeConfigAccess: false, serverUrl: 'https://77534F4082580FEEDEDDEA2BC447D37C.gr7.ap-south-1.eks.amazonaws.com') {
+                   sh 'kubectl apply -f k8s-dev/sc.yaml -n dev'
+                   sh 'kubectl apply -f k8s-dev/mysql.yaml -n dev'
+                   sh 'kubectl apply -f k8s-dev/backend.yaml -n dev'
+                   sh 'kubectl apply -f k8s-dev/frontend.yaml -n dev'
+                   sleep 30
+                       
+                   }
+                }
+            }
+        }
+        
+        stage('k8-deploy-verify-stage') {
+            steps {
+                script {
+                   withKubeConfig(caCertificate: '', clusterName: ' devopsshack-cluster', contextName: '', credentialsId: 'k8-token', namespace: 'dev', restrictKubeConfigAccess: false, serverUrl: 'https://77534F4082580FEEDEDDEA2BC447D37C.gr7.ap-south-1.eks.amazonaws.com') {
+                   sh 'kubectl get pods -n dev'
+                   sh 'kubectl get svc -n dev'
+                       
+                   }
+                }
+            }
+        }
     }
 }

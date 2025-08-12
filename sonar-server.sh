@@ -32,10 +32,11 @@ sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plug
 
 # Add current user to docker group
 echo "👤 Adding user 'ubuntu' to docker group..."
-sudo usermod -aG docker ubuntu
-newgrp docker <<EONG
+sudo usermod -aG docker ubuntu && newgrp docker
+newgrp docker
 echo "✅ Docker group updated for 'ubuntu'."
-EONG
+sleep 5
+
 
 # Run SonarQube container
 echo "🚀 Running SonarQube container..."
