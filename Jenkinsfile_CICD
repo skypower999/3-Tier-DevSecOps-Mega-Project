@@ -121,7 +121,7 @@ pipeline {
                     withKubeConfig(caCertificate: '', clusterName: 'devopsshack-cluster', contextName: '', credentialsId: 'k8-prod-token', namespace: 'prod', restrictKubeConfigAccess: false, serverUrl: 'https://AFC6FCFF5360B30D5E8950396E38A8C4.gr7.ap-south-1.eks.amazonaws.com') {
                         sh 'kubectl get pods -n prod'
                         sleep 20
-                         sh 'kubectl get ingress -n prod'
+                        sh 'kubectl get ingress -n prod'
                         
                     }
                 }
